@@ -2,7 +2,7 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
+
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -38,6 +38,15 @@ where
 
     pub fn add(&mut self, value: T) {
         //TODO
+        self.count+=1;
+        self.items.push(value);
+        let mut id = self.count;
+        let mut parent_id = self.parent_idx(id);
+        while id > 1 && (self.comparator)(&self.items[id], &self.items[parent_id]) {
+            self.items.swap(id, parent_id);
+            id = parent_id;
+            parent_id = self.parent_idx(id);
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -58,7 +67,13 @@ where
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+        let left = self.left_child_idx(idx);
+        let right = self.right_child_idx(idx);
+        if right > self.count || (self.comparator)(&self.items[left], &self.items[right]) {
+            left
+        } else {
+            right
+        }
     }
 }
 
@@ -79,13 +94,31 @@ where
 
 impl<T> Iterator for Heap<T>
 where
-    T: Default,
+    T: Default+Clone,
 {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
         //TODO
-		None
+        if self.is_empty() {
+            None
+        }else{
+            let res = self.items[1].clone();
+            self.items[1] = self.items[self.count].clone();
+            self.items.remove(self.count);
+            self.count-=1;
+            let mut id = 1;
+            while self.children_present(id) {
+                let smallest_child_id = self.smallest_child_idx(id);
+                if (self.comparator)(&self.items[smallest_child_id], &self.items[id]) {
+                    self.items.swap(smallest_child_id, id);
+                    id = smallest_child_id;
+                } else {
+                    break;
+                }
+            }
+            Some(res)
+        }
     }
 }
 
@@ -134,6 +167,7 @@ mod tests {
         assert_eq!(heap.next(), Some(4));
         assert_eq!(heap.next(), Some(9));
         heap.add(1);
+        println!("{:?}", heap.items);
         assert_eq!(heap.next(), Some(1));
     }
 
@@ -144,6 +178,7 @@ mod tests {
         heap.add(2);
         heap.add(9);
         heap.add(11);
+
         assert_eq!(heap.len(), 4);
         assert_eq!(heap.next(), Some(11));
         assert_eq!(heap.next(), Some(9));

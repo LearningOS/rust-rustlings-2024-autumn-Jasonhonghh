@@ -3,14 +3,12 @@
 	This problem requires you to implement a basic BFS algorithm
 */
 
-//I AM NOT DONE
 use std::collections::VecDeque;
 
 // Define a graph
 struct Graph {
     adj: Vec<Vec<usize>>, 
 }
-
 impl Graph {
     // Create a new graph with n vertices
     fn new(n: usize) -> Self {
@@ -29,8 +27,23 @@ impl Graph {
     fn bfs_with_return(&self, start: usize) -> Vec<usize> {
         
 		//TODO
-
+        // Create a queue and push the starting node
+        let mut queue = VecDeque::new();
         let mut visit_order = vec![];
+        visit_order.push(start);
+        for element in self.adj[start].iter() {
+            visit_order.push(*element);
+            queue.push_back(*element);
+        }
+        while !queue.is_empty(){
+            let index = queue.pop_front().unwrap();
+            for element in self.adj[index].iter() {
+                if !visit_order.contains(element) {
+                    visit_order.push(*element);
+                    queue.push_back(*element);
+                }
+            }
+        }
         visit_order
     }
 }
